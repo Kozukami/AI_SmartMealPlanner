@@ -1,0 +1,92 @@
+{
+  "features": [
+    "BMXBMI",
+    "bmi_cat_encoded",
+    "bmi_squared",
+    "has_diabetes",
+    "has_hypertension",
+    "has_malnutrition",
+    "disease_burden",
+    "RIDAGEYR",
+    "gender_encoded"
+  ],
+  "targets": [
+    "DR1TKCAL",
+    "DR1TPROT",
+    "DR1TCARB",
+    "DR1TTFAT",
+    "DR1TFIBE"
+  ],
+  "target_labels": [
+    "Calories (kcal)",
+    "Protein (g)",
+    "Carbs (g)",
+    "Fat (g)",
+    "Fiber (g)"
+  ],
+  "bmi_categories": [
+    "normal",
+    "obese",
+    "overweight",
+    "underweight"
+  ],
+  "disease_options": [
+    "none",
+    "diabetes",
+    "hypertension",
+    "malnutrition"
+  ],
+  "input_example": {
+    "bmi": 27.4,
+    "disease": "diabetes",
+    "ingredients": [
+      "chicken",
+      "rice",
+      "spinach"
+    ]
+  },
+  "output_example": {
+    "DR1TKCAL": 1850,
+    "DR1TPROT": 85.0,
+    "DR1TCARB": 220.0,
+    "DR1TTFAT": 62.0,
+    "DR1TFIBE": 28.0
+  },
+  "model_performance": [
+    {
+      "target": "Calories (kcal)",
+      "MAE": 593.47,
+      "RMSE": 760.13,
+      "R2": 0.066,
+      "vs_baseline_pct": 3.3
+    },
+    {
+      "target": "Protein (g)",
+      "MAE": 25.26,
+      "RMSE": 32.95,
+      "R2": 0.069,
+      "vs_baseline_pct": 3.4
+    },
+    {
+      "target": "Carbs (g)",
+      "MAE": 75.81,
+      "RMSE": 95.01,
+      "R2": 0.042,
+      "vs_baseline_pct": 1.6
+    },
+    {
+      "target": "Fat (g)",
+      "MAE": 30.93,
+      "RMSE": 39.84,
+      "R2": 0.023,
+      "vs_baseline_pct": 1.3
+    },
+    {
+      "target": "Fiber (g)",
+      "MAE": 6.63,
+      "RMSE": 8.89,
+      "R2": 0.005,
+      "vs_baseline_pct": 0.6
+    }
+  ]
+}
