@@ -49,6 +49,63 @@
             margin-bottom: 24px;
             color: var(--sage);
         }
+        
+/* New Hero Header Styling */
+        .hero-banner {
+            background-color: #17221E; /* Deep dark forest green matching your image */
+            color: white;
+            padding: 48px 40px;
+            border-radius: var(--radius-md);
+            margin-bottom: 32px;
+            box-shadow: var(--shadow);
+        }
+
+        .hero-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 48px;
+        }
+
+        .hero-logo {
+            font-family: var(--font-serif);
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+            letter-spacing: -0.5px;
+        }
+
+        .hero-tag {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--source-accent, #83A798);
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .hero-title {
+            font-family: var(--font-serif);
+            font-size: 3rem;
+            line-height: 1.15;
+            margin-bottom: 18px;
+            max-width: 650px;
+            color: white;
+        }
+
+        .hero-title em {
+            font-style: italic;
+            color: #92B7A8; /* Sleek light green accent for "meal plan" */
+            font-family: var(--font-serif);
+        }
+
+        .hero-subtitle {
+            font-size: 16px;
+            color: #A3B6AE;
+            max-width: 580px;
+            line-height: 1.6;
+        }
 
         /* Form Styling */
         .form-card {
@@ -222,10 +279,24 @@
 <body>
 
 <div class="container">
-    <h1>NutriAI Meal Planner</h1>
+    
+    <header class="hero-banner">
+        <div class="hero-nav">
+            <div class="hero-logo">NutriAI</div>
+            </div>
+        
+        <div class="hero-content">
+            <span class="hero-tag">AI-Powered Nutrition</span>
+            <h2 class="hero-title">Your personalized <em>meal plan</em> starts here.</h2>
+            <p class="hero-subtitle">
+                Tell us about your body and what's in your kitchen. We'll do the rest — 
+                powered by NHANES health data and your available ingredients.
+            </p>
+        </div>
+    </header>
 
     <div id="error-message" class="error-card"></div>
-
+    
     <div class="form-card">
         <form id="planner-form" onsubmit="generateMealPlan(event)">
             <div class="form-grid">
