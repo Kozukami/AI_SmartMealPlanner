@@ -422,6 +422,128 @@
             margin-bottom: 24px;
             font-weight: 500;
         }
+
+/* Step 3: Interactive Tag Component Layout */
+        .full-width-card {
+            grid-column: span 2;
+            margin-top: 12px;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .input-row input {
+            flex: 1;
+            padding: 14px 18px;
+            font-size: 15px;
+            border: 1px solid #D1D5DB;
+            border-radius: var(--radius-sm);
+        }
+
+        .btn-add {
+            background-color: var(--sage);
+            color: white;
+            border: none;
+            padding: 0 24px;
+            font-weight: 600;
+            font-size: 15px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-add:hover {
+            background-color: var(--sage-mid);
+        }
+
+        /* Active Selected Ingredient Tags */
+        .tags-display-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+            min-height: 34px;
+        }
+
+        .ingredient-tag {
+            background-color: #EBF2EE;
+            color: #2D463C;
+            border: 1px solid rgba(74, 107, 93, 0.15);
+            padding: 6px 14px;
+            border-radius: 100px;
+            font-size: 14px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ingredient-tag .remove-btn {
+            cursor: pointer;
+            color: #8A9A93;
+            font-weight: bold;
+            font-size: 16px;
+            transition: color 0.2s;
+        }
+
+        .ingredient-tag .remove-btn:hover {
+            color: var(--rose);
+        }
+
+        /* Pre-made Suggestion Engine Pills */
+        .suggestions-row {
+            font-size: 13px;
+            color: #6B7280;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .suggestion-pill {
+            background-color: #F4F4F3;
+            color: #4B5563;
+            padding: 4px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.15s ease;
+        }
+
+        .suggestion-pill:hover {
+            background-color: #E5E7EB;
+            color: var(--ink);
+        }
+
+        /* Bottom Sticky Action Footer Block */
+        .action-footer-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+        }
+
+        .validation-status-text {
+            font-size: 14px;
+            font-weight: 500;
+            color: #6B7280;
+        }
+
+        .validation-status-text.ready {
+            color: #2D463C;
+            font-weight: 600;
+        }
+
+        .action-footer-bar button.btn-generate {
+            width: auto;
+            min-width: 200px;
+        }
+
     </style>
 </head>
 <body>
@@ -509,12 +631,37 @@
                     <label for="main_fiber">Preferred Fiber/Veg</label>
                     <input type="text" id="main_fiber" placeholder="e.g., spinach">
                 </div>
-                <div class="form-group">
-                    <label for="ingredients">Available Ingredients (Comma separated)</label>
-                    <input type="text" id="ingredients" required placeholder="chicken, rice, spinach, egg">
+               </div> <div class="step-card full-width-card">
+                <span class="step-label">Step 3</span>
+                <h3 class="step-title">Available ingredients</h3>
+                <p class="step-desc">Type what's in your kitchen. We'll fuzzy-match to 2,395 foods in the database and suggest substitutes for anything missing from a recipe.</p>
+                
+                <div class="input-row">
+                    <input type="text" id="ingredient-typer" placeholder="e.g. chicken, spinach, brown rice..." onkeydown="handleInputKeyDown(event)">
+                    <button type="button" class="btn-add" onclick="processTypedIngredient()">+ Add</button>
                 </div>
+
+                <div id="active-tags-zone" class="tags-display-area"></div>
+
+                <div class="suggestions-row">
+                    <span>Try:</span>
+                    <span class="suggestion-pill" onclick="addIngredientTag('chicken')">chicken</span>
+                    <span class="suggestion-pill" onclick="addIngredientTag('brown rice')">brown rice</span>
+                    <span class="suggestion-pill" onclick="addIngredientTag('spinach')">spinach</span>
+                    <span class="suggestion-pill" onclick="addIngredientTag('eggs')">eggs</span>
+                    <span class="suggestion-pill" onclick="addIngredientTag('tofu')">tofu</span>
+                    <span class="suggestion-pill" onclick="addIngredientTag('garlic')">garlic</span>
+                    <span class="suggestion-pill" onclick="addIngredientTag('broccoli')">broccoli</span>
+                    <span class="suggestion-pill" onclick="addIngredientTag('milk')">milk</span>
+                </div>
+
+                <input type="hidden" id="ingredients" value="">
             </div>
-            <button type="submit" id="btn-submit" class="btn-generate">Generate Meal Plan</button>
+
+            <div class="action-footer-bar">
+                <div id="validation-notice" class="validation-status-text">Add at least 3 ingredients to continue</div>
+                <button type="submit" id="btn-submit" class="btn-generate" disabled>Analyse my profile →</button>
+            </div>
         </form>
     </div>
 
@@ -736,6 +883,87 @@
 
         html += `</div>`;
         return html;
+    }
+    // Active array to manage current ingredients state list metrics
+    let activeIngredientsList = [];
+
+    // Captures standard return/enter key triggers on active keyboard focus
+    function handleInputKeyDown(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault(); // Stop default form submit rules
+            processTypedIngredient();
+        }
+    }
+
+    // Pulls data straight out of text box and routes it for normalization processing
+    function processTypedIngredient() {
+        const inputField = document.getElementById('ingredient-typer');
+        const value = inputField.value.trim();
+        
+        if (value) {
+            addIngredientTag(value);
+            inputField.value = ''; // Instantly clear input lane box clear
+        }
+    }
+
+    // Validates clean records entries into UI element display structures
+    function addIngredientTag(name) {
+        const normalized = name.toLowerCase().trim();
+        
+        // Prevent stacking duplicate element values
+        if (normalized && !activeIngredientsList.includes(normalized)) {
+            activeIngredientsList.push(normalized);
+            syncAndRenderIngredients();
+        }
+    }
+
+    // Handles element slice manipulation rules on selection list removals
+    function removeIngredientTag(index) {
+        activeIngredientsList.splice(index, 1);
+        syncAndRenderIngredients();
+    }
+
+    // Synchronizes structural hidden tracking fields seamlessly with UI layout nodes
+    function syncAndRenderIngredients() {
+        const hiddenInput = document.getElementById('ingredients');
+        const tagsZone = document.getElementById('active-tags-zone');
+        const validationNotice = document.getElementById('validation-notice');
+        const submitBtn = document.getElementById('btn-submit');
+
+        // 1. Maintain background pipeline fields so your exact original split(',') code stays functional
+        hiddenInput.value = activeIngredientsList.join(',');
+
+        // 2. Render operational tag views 
+        tagsZone.innerHTML = '';
+        activeIngredientsList.forEach((ingredient, index) => {
+            const tagElement = document.createElement('div');
+            tagElement.className = 'ingredient-tag';
+            tagElement.innerHTML = `
+                <span>${ingredient}</span>
+                <span class="remove-btn" onclick="removeIngredientTag(${index})">&times;</span>
+            `;
+            tagsZone.appendChild(tagElement);
+        });
+
+        // 3. Dynamic Threshold Count Messaging Calculations
+        const count = activeIngredientsList.length;
+        if (count === 0) {
+            validationNotice.innerText = "Add at least 3 ingredients to continue";
+            validationNotice.classList.remove('ready');
+            submitBtn.disabled = true;
+        } else if (count === 1) {
+            validationNotice.innerText = "Add at least 2 more ingredients to continue";
+            validationNotice.classList.remove('ready');
+            submitBtn.disabled = true;
+        } else if (count === 2) {
+            validationNotice.innerText = "Add 1 more ingredient to continue";
+            validationNotice.classList.remove('ready');
+            submitBtn.disabled = true;
+        } else {
+            validationNotice.innerText = `${count} ingredients added ✓`;
+            validationNotice.classList.add('ready');
+            submitBtn.disabled = false;
+        }
     }
 </script>
 </body>
