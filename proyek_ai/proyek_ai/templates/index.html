@@ -107,6 +107,154 @@
             line-height: 1.6;
         }
 
+/* 2-Column Steps Layout */
+        .steps-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 28px;
+        }
+
+        .step-card {
+            background: #FFFFFF;
+            border: 1px solid rgba(74, 107, 93, 0.12);
+            border-radius: var(--radius-md);
+            padding: 28px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .step-label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #8A9A93;
+            margin-bottom: 6px;
+        }
+
+        .step-title {
+            font-family: var(--font-serif);
+            font-size: 1.6rem;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .step-desc {
+            font-size: 13px;
+            color: #6B7280;
+            line-height: 1.5;
+            margin-bottom: 24px;
+        }
+
+        /* Step 1: Live BMI Display */
+        .bmi-value-wrapper {
+            font-family: var(--font-serif);
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            transition: color 0.3s ease;
+        }
+        
+        .bmi-value-wrapper .unit {
+            font-family: var(--font-sans);
+            font-size: 1rem;
+            color: #6B7280;
+            font-weight: 400;
+            margin-left: 4px;
+        }
+
+        /* Custom Range Slider styling */
+        .slider-wrapper {
+            margin-bottom: 12px;
+        }
+
+        .custom-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 100px;
+            background: #E5E7EB;
+            outline: none;
+        }
+
+        .custom-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--sage);
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+            transition: transform 0.1s;
+        }
+
+        .custom-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #9CA3AF;
+            margin-bottom: 20px;
+        }
+
+        /* Dynamic Status Badges */
+        .status-badge {
+            display: inline-block;
+            align-self: flex-start;
+            padding: 6px 12px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        /* Step 2: Conditions Grid Buttons */
+        .conditions-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .condition-btn {
+            background: #FAFAF9;
+            border: 1px solid #E5E7EB;
+            border-radius: var(--radius-sm);
+            padding: 14px;
+            font-family: var(--font-sans);
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--ink);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.2s ease;
+            text-align: left;
+        }
+
+        .condition-btn:hover {
+            border-color: var(--sage-mid);
+            background: #FFFFFF;
+        }
+
+        .condition-btn.active {
+            background-color: #EBF2EE;
+            border-color: var(--sage);
+            color: #2D463C;
+            box-shadow: inset 0 0 0 1px var(--sage);
+        }
+
+        /* Responsive Breakpoint for smaller screens */
+        @media (max-width: 768px) {
+            .steps-container { grid-template-columns: 1fr; }
+        }
+
         /* Form Styling */
         .form-card {
             background: white;
@@ -299,20 +447,56 @@
     
     <div class="form-card">
         <form id="planner-form" onsubmit="generateMealPlan(event)">
+            <div class="steps-container">
+                
+                <div class="step-card">
+                    <span class="step-label">Step 1</span>
+                    <h3 class="step-title">Your BMI</h3>
+                    <p class="step-desc">Body Mass Index helps us calculate your daily caloric target and macro balance.</p>
+                    
+                    <div class="bmi-value-wrapper">
+                        <span id="bmi-val-text">24.5</span><span class="unit">kg/m²</span>
+                    </div>
+                    
+                    <div class="slider-wrapper">
+                        <input type="range" id="bmi" min="10" max="50" step="0.1" value="24.5" class="custom-slider" oninput="updateBMILive(this.value)">
+                    </div>
+                    <div class="slider-labels">
+                        <span>10 · Severe</span>
+                        <span>18.5 · Normal</span>
+                        <span>30 · Obese</span>
+                        <span>50</span>
+                    </div>
+                    
+                    <div id="bmi-badge" class="status-badge">Normal weight</div>
+                </div>
+
+                <div class="step-card">
+                    <span class="step-label">Step 2</span>
+                    <h3 class="step-title">Current conditions</h3>
+                    <p class="step-desc">Select all that apply. The model uses these to apply clinical dietary constraints.</p>
+                    
+                    <input type="hidden" id="disease" value="none">
+                    
+                    <div class="conditions-grid">
+                        <button type="button" class="condition-btn" data-value="diabetes" onclick="toggleCondition(this)">
+                            <span>🩸</span> Diabetes
+                        </button>
+                        <button type="button" class="condition-btn" data-value="hypertension" onclick="toggleCondition(this)">
+                            <span>❤️</span> Hypertension
+                        </button>
+                        <button type="button" class="condition-btn" data-value="malnutrition" onclick="toggleCondition(this)">
+                            <span>⚖️</span> Malnutrition
+                        </button>
+                        <button type="button" class="condition-btn active" data-value="none" onclick="toggleCondition(this)">
+                            <span>✅</span> None
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
             <div class="form-grid">
-                <div class="form-group">
-                    <label for="bmi">BMI Value</label>
-                    <input type="number" step="0.1" id="bmi" required placeholder="e.g., 24.5">
-                </div>
-                <div class="form-group">
-                    <label for="disease">Health Condition</label>
-                    <select id="disease" required>
-                        <option value="none">None (Healthy)</option>
-                        <option value="diabetes">Diabetes</option>
-                        <option value="hypertension">Hypertension</option>
-                        <option value="malnutrition">Malnutrition</option>
-                    </select>
-                </div>
                 <div class="form-group">
                     <label for="main_protein">Preferred Protein</label>
                     <input type="text" id="main_protein" placeholder="e.g., chicken">
@@ -362,6 +546,75 @@
 </div>
 
 <script>
+    // 1. Step 1: Live BMI Value and Interactive Palette Color Mapping
+    function updateBMILive(val) {
+        document.getElementById('bmi-val-text').innerText = parseFloat(val).toFixed(1);
+        
+        const valueDisplay = document.getElementById('bmi-val-text');
+        const badge = document.getElementById('bmi-badge');
+        let statusText = "";
+        let colorHex = "";
+        let bgHex = "";
+
+        if (val < 18.5) {
+            statusText = "Underweight range";
+            colorHex = "#2563EB"; // Medical Blue
+            bgHex = "#EFF6FF";
+        } else if (val >= 18.5 && val < 25.0) {
+            statusText = "Normal weight";
+            colorHex = "#4A6B5D"; // Premium Deep Sage
+            bgHex = "#EBF2EE";
+        } else if (val >= 25.0 && val < 30.0) {
+            statusText = "Overweight";
+            colorHex = "#D97706"; // Safety Orange/Amber
+            bgHex = "#FEF3C7";
+        } else {
+            statusText = "Obese range";
+            colorHex = "#DC2626"; // Alert Clinical Red
+            bgHex = "#FEE2E2";
+        }
+
+        valueDisplay.style.color = colorHex;
+        badge.innerText = statusText;
+        badge.style.color = colorHex;
+        badge.style.backgroundColor = bgHex;
+    }
+
+    // 2. Step 2: Mutual Exclusion Button Selection Array Management
+    function toggleCondition(element) {
+        const value = element.getAttribute('data-value');
+        const allButtons = document.querySelectorAll('.condition-btn');
+        const hiddenInput = document.getElementById('disease');
+
+        if (value === 'none') {
+            // Clearing selections if None is pressed
+            allButtons.forEach(btn => btn.classList.remove('active'));
+            element.classList.add('active');
+        } else {
+            // Removing None state if an active condition is selected
+            const noneBtn = document.querySelector('.condition-btn[data-value="none"]');
+            if (noneBtn) noneBtn.classList.remove('active');
+            
+            element.classList.toggle('active');
+            
+            // Safety fallback check if everything gets unselected
+            const activeBtns = document.querySelectorAll('.condition-btn.active');
+            if (activeBtns.length === 0 && noneBtn) {
+                noneBtn.classList.add('active');
+            }
+        }
+
+        // Combine active tags into data metrics matching what your model expects
+        const activeElements = document.querySelectorAll('.condition-btn.active');
+        const activeValues = Array.from(activeElements).map(btn => btn.getAttribute('data-value'));
+        
+        hiddenInput.value = activeValues.includes('none') ? 'none' : activeValues.join(',');
+    }
+
+    // Initialize layout positions immediately when layout mounts
+    window.addEventListener('DOMContentLoaded', () => {
+        updateBMILive(document.getElementById('bmi').value);
+    });
     async function generateMealPlan(event) {
         event.preventDefault();
         
