@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NutriAI Meal Planner</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+    
+    <style>
+        /* 16 CSS Design System Variables */
+        :root {
+            --cream: #FDFBF7;
+            --ink: #1C2421;
+            --sage: #4A6B5D;
+            --sage-mid: #709384;
+            --sage-pale: #EBF2EE;
+            --amber: #D97706;
+            --amber-pale: #FEF3C7;
+            --rose: #DC2626;
+            --rose-pale: #FEE2E2;
+            --border: #E5E7EB;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            --radius-sm: 6px;
+            --radius-md: 12px;
+            --radius-lg: 24px;
+            --font-sans: 'DM Sans', sans-serif;
+            --font-serif: 'DM Serif Display', serif;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--cream);
+            color: var(--ink);
+            font-family: var(--font-sans);
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-family: var(--font-serif);
+            font-size: 2.5rem;
+            margin-bottom: 24px;
+            color: var(--sage);
+        }
+
+        /* Form Styling */
+        .form-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 32px;
+            box-shadow: var(--shadow);
+            margin-bottom: 32px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group.full-width {
+            grid-column: span 2;
+        }
+
+        label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--ink);
+        }
+
+        input, select {
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-family: var(--font-sans);
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--sage);
+            box-shadow: 0 0 0 3px var(--sage-pale);
+        }
+
+        button.btn-generate {
+            background-color: var(--sage);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 100px; /* Pill radius */
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+            width: 100%;
+        }
+
+        button.btn-generate:hover {
+            transform: translateY(-2px);
+            background-color: var(--sage-mid);
+        }
+
+        button:disabled {
+            background-color: var(--border) !important;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* Macro Summary Bar */
+        .macro-bar {
+            display: none; /* Hidden until results load */
+            background-color: var(--sage);
+            color: white;
+            border-radius: var(--radius-md);
+            padding: 24px;
+            margin-bottom: 32px;
+            grid-template-columns: repeat(5, 1fr);
+            text-align: center;
+            gap: 16px;
+        }
+
+        .macro-stat .value {
+            font-family: var(--font-serif);
+            font-size: 28px;
+            display: block;
+        }
+
+        .macro-stat .label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.9;
+        }
+
+        /* Results Table */
+        .results-container { display: none; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        th {
+            background-color: var(--ink);
+            color: white;
+            padding: 16px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: top; /* Top-aligned cells */
+            width: 14.28%;
+        }
+
+        tr:nth-child(even) td {
+            background-color: var(--cream);
+        }
+
+        /* Meal Cells */
+        .meal-cell {
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .meal-name { font-weight: 700; margin-bottom: 2px; }
+        .meal-kcal { color: var(--sage-mid); font-size: 12px; margin-bottom: 4px; }
+        .meal-grams { font-size: 12px; color: #666; margin-bottom: 6px; }
+
+        /* Badges */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-top: 4px;
+            width: 100%;
+        }
+
+        .badge-missing { background-color: var(--rose-pale); color: var(--rose); }
+        .badge-sub { background-color: var(--amber-pale); color: var(--amber); }
+
+        /* Error States */
+        .error-card {
+            display: none;
+            background-color: var(--rose-pale);
+            border: 1px solid var(--rose);
+            color: var(--rose);
+            padding: 16px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 24px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>NutriAI Meal Planner</h1>
+
+    <div id="error-message" class="error-card"></div>
+
+    <div class="form-card">
+        <form id="planner-form" onsubmit="generateMealPlan(event)">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="bmi">BMI Value</label>
+                    <input type="number" step="0.1" id="bmi" required placeholder="e.g., 24.5">
+                </div>
+                <div class="form-group">
+                    <label for="disease">Health Condition</label>
+                    <select id="disease" required>
+                        <option value="none">None (Healthy)</option>
+                        <option value="diabetes">Diabetes</option>
+                        <option value="hypertension">Hypertension</option>
+                        <option value="malnutrition">Malnutrition</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="main_protein">Preferred Protein</label>
+                    <input type="text" id="main_protein" placeholder="e.g., chicken">
+                </div>
+                <div class="form-group">
+                    <label for="main_carbohydrate">Preferred Carbohydrate</label>
+                    <input type="text" id="main_carbohydrate" placeholder="e.g., rice">
+                </div>
+                <div class="form-group">
+                    <label for="main_fiber">Preferred Fiber/Veg</label>
+                    <input type="text" id="main_fiber" placeholder="e.g., spinach">
+                </div>
+                <div class="form-group">
+                    <label for="ingredients">Available Ingredients (Comma separated)</label>
+                    <input type="text" id="ingredients" required placeholder="chicken, rice, spinach, egg">
+                </div>
+            </div>
+            <button type="submit" id="btn-submit" class="btn-generate">Generate Meal Plan</button>
+        </form>
+    </div>
+
+    <div id="macro-summary" class="macro-bar">
+        <div class="macro-stat"><span class="value" id="macro-calories">0</span><span class="label">Calories</span></div>
+        <div class="macro-stat"><span class="value" id="macro-protein">0g</span><span class="label">Protein</span></div>
+        <div class="macro-stat"><span class="value" id="macro-carbs">0g</span><span class="label">Carbs</span></div>
+        <div class="macro-stat"><span class="value" id="macro-fat">0g</span><span class="label">Fat</span></div>
+        <div class="macro-stat"><span class="value" id="macro-fiber">0g</span><span class="label">Fiber</span></div>
+    </div>
+
+    <div id="results-container" class="results-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Monday</th>
+                    <th>Tuesday</th>
+                    <th>Wednesday</th>
+                    <th>Thursday</th>
+                    <th>Friday</th>
+                    <th>Saturday</th>
+                    <th>Sunday</th>
+                </tr>
+            </thead>
+            <tbody id="meal-table-body">
+                </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    async function generateMealPlan(event) {
+        event.preventDefault();
+        
+        const submitBtn = document.getElementById('btn-submit');
+        const errorDiv = document.getElementById('error-message');
+        
+        // Setup loading states
+        submitBtn.disabled = true;
+        submitBtn.innerText = "Generating…";
+        errorDiv.style.display = 'none';
+
+        // Mismatch-proof payload generation containing all 6 fields
+        const payload = {
+            bmi: parseFloat(document.getElementById('bmi').value),
+            disease: document.getElementById('disease').value,
+            main_protein: document.getElementById('main_protein').value,
+            main_carbohydrate: document.getElementById('main_carbohydrate').value,
+            main_fiber: document.getElementById('main_fiber').value,
+            ingredients: document.getElementById('ingredients').value.split(',').map(s => s.trim()).filter(Boolean)
+        };
+
+        try {
+            const response = await fetch('/predict', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) throw new Error('Failed to generate plan. Please verify backend status.');
+
+            const data = await response.json();
+            renderResults(data);
+        } catch (error) {
+            errorDiv.innerText = error.message;
+            errorDiv.style.display = 'block';
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerText = "Generate Meal Plan";
+        }
+    }
+
+    function renderResults(data) {
+        // 1. Populate Macro Summary values safely
+        const targets = data.daily_targets || {};
+        document.getElementById('macro-calories').innerText = targets.calories || 0;
+        document.getElementById('macro-protein').innerText = (targets.protein_g || 0) + 'g';
+        document.getElementById('macro-carbs').innerText = (targets.carbs_g || 0) + 'g';
+        document.getElementById('macro-fat').innerText = (targets.fat_g || 0) + 'g';
+        document.getElementById('macro-fiber').innerText = (targets.fiber_g || 0) + 'g';
+
+        document.getElementById('macro-summary').style.display = 'grid';
+
+        // 2. Build 7-day table rows
+        const tbody = document.getElementById('meal-table-body');
+        tbody.innerHTML = ''; // Reset
+
+        // We assume backend structure yields weekly_plan or week_plan list mapping days
+        const plan = data.weekly_plan || data.week_plan || [];
+        
+        if (plan.length > 0) {
+            const mealTypes = ['breakfast', 'lunch', 'dinner'];
+            
+            mealTypes.forEach(type => {
+                const tr = document.createElement('tr');
+                
+                // Loop through all 7 days for this specific meal type row
+                for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
+                    const td = document.createElement('td');
+                    const dayData = plan[dayIndex] || {};
+                    const meal = dayData[type];
+                    
+                    if (meal) {
+                        td.innerHTML = renderMealCell(meal, type);
+                    } else {
+                        td.innerHTML = `<div class="meal-cell"><em>No meal assigned</em></div>`;
+                    }
+                    tr.appendChild(td);
+                }
+                tbody.appendChild(tr);
+            });
+        }
+
+        document.getElementById('results-container').style.display = 'block';
+    }
+
+    function renderMealCell(meal, type) {
+        // Capitalize meal row type label
+        const titleLabel = type.charAt(0).toUpperCase() + type.slice(1);
+        
+        let html = `
+            <div class="meal-cell">
+                <div class="meal-name">${titleLabel}: ${meal.name || 'Custom Plate'}</div>
+                <div class="meal-kcal">${meal.calories || 0} kcal</div>
+        `;
+
+        // Gram weights display block
+        if (meal.portions || meal.grams) {
+            html += `<div class="meal-grams">`;
+            const portions = meal.portions || meal.grams;
+            for (const [item, weight] of Object.entries(portions)) {
+                html += `• ${item}: ${weight}g<br>`;
+            }
+            html += `</div>`;
+        }
+
+        // Missing badges condition rules
+        if (meal.missing && meal.missing.length > 0) {
+            meal.missing.forEach(item => {
+                html += `<div class="badge badge-missing">⚠️ Missing: ${item}</div>`;
+            });
+        }
+
+        // Substitution suggestion block
+        if (meal.substitutes && Object.keys(meal.substitutes).length > 0) {
+            for (const [missingItem, subItem] of Object.entries(meal.substitutes)) {
+                html += `<div class="badge badge-sub">💡 Sub ${missingItem} → ${subItem}</div>`;
+            }
+        }
+
+        html += `</div>`;
+        return html;
+    }
+</script>
+</body>
+</html>
