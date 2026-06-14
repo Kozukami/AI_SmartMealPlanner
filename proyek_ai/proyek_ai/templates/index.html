@@ -444,7 +444,7 @@
             font-weight: 500;
         }
 
-/* Step 3: Interactive Tag Component Layout */
+/* Step 4: Interactive Tag Component Layout */
         .full-width-card {
             grid-column: span 2;
             margin-top: 12px;
@@ -565,7 +565,7 @@
             min-width: 200px;
         }
 
-/* Step 4: Base Taste Profile Layout Configuration */
+/* Step 3: Base Taste Profile Layout Configuration */
         .preferences-inline-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -592,6 +592,7 @@
             font-size: 14px;
             border-radius: var(--radius-sm);
             width: 100%;
+            box-sizing: border-box; /* Fixed clipping issue */
         }
 
         @media (max-width: 768px) {
@@ -685,7 +686,7 @@
             </div>
 
            <div class="step-card full-width-card" style="margin-top: 24px;">
-                <span class="step-label">Step 4</span>
+                <span class="step-label">Step 3</span>
                 <h3 class="step-title">Base Taste Profile</h3>
                 <p class="step-desc">Set your preferred core foundations. The AI uses these choices to prioritize flavor matching and primary meal selections.</p>
                 
@@ -705,7 +706,7 @@
                 </div>
             </div>
             <div class="step-card full-width-card">
-                <span class="step-label">Step 3</span>
+                <span class="step-label">Step 4</span>
                 <h3 class="step-title">Available ingredients</h3>
                 <p class="step-desc">Type what's in your kitchen. We'll fuzzy-match to 2,395 foods in the database and suggest substitutes for anything missing from a recipe.</p>
                 
